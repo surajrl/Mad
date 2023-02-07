@@ -18,17 +18,8 @@ namespace Mad {
 	void FIXHandler::ProcessNewOrderSingle(std::string message)
 	{
 		NewOrderSingle newOrderSingle(message);
-
-		if (m_Market.HasOrderBook(newOrderSingle.getSymbol()))
-		{
-			m_Market.AddNewOrderSingle(newOrderSingle);
-		}
-		else
-		{
-			OrderBook newOrderBook(newOrderSingle.getSymbol());
-			newOrderBook.AddNewOrderSingle(newOrderSingle);
-			m_Market.AddOrderBook(newOrderBook);
-		}
+		
+		m_Market.AddNewOrderSingle(newOrderSingle);
 
 		std::cout << m_Market;
 	}

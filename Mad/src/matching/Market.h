@@ -1,6 +1,6 @@
 #pragma once
 
-#include <vector>
+#include <unordered_map>
 
 #include "OrderBook.h"
 
@@ -12,15 +12,14 @@ namespace Mad {
 			: m_OrderBooks()
 		{};
 
-		bool HasOrderBook(std::string symbol);
-
-		void AddOrderBook(const OrderBook& orderBook);
-		void AddNewOrderSingle(const NewOrderSingle& newOrderSingle);
+		void AddNewOrderSingle(NewOrderSingle& newOrderSingle);
 
 		friend std::ostream& operator<<(std::ostream& out, const Market& other);
 
 	private:
-		std::vector<OrderBook> m_OrderBooks;
+		std::unordered_map<std::string, OrderBook> m_OrderBooks;
+	
+		OrderBook& AddOrderBook(const OrderBook& orderBook);
 	};
 
 }

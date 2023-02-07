@@ -32,6 +32,8 @@ namespace Mad {
 		OrdType		getOrdType()		const { return m_OrdType; };
 		uint64_t	getPrice()			const { return m_Price; };
 
+		void setOrderQtyData(uint64_t orderQtyData) { m_OrderQtyData = orderQtyData; };
+
 		friend std::ostream& operator<<(std::ostream& out, const NewOrderSingle& other);
 
 	private:

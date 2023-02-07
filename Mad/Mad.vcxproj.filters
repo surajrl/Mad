@@ -42,6 +42,9 @@
     <ClInclude Include="include\Mad.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\matching\Order.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\fixlatest\FIXHandler.cpp">
@@ -63,6 +66,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\matching\Market.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\matching\Order.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

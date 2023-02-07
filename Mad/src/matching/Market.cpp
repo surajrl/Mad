@@ -2,40 +2,33 @@
 
 namespace Mad {
 
-	void Market::AddOrderBook(const OrderBook& orderBook)
+	OrderBook& Market::AddOrderBook(const OrderBook& orderBook)
 	{
-		m_OrderBooks.push_back(orderBook);
+		m_OrderBooks.emplace(orderBook.getSymbol(), orderBook);
+		return m_OrderBooks.at(orderBook.getSymbol());
 	}
 
-	void Market::AddNewOrderSingle(const NewOrderSingle& newOrderSingle)
+	void Market::AddNewOrderSingle(NewOrderSingle& newOrderSingle)
 	{
-		for (OrderBook& orderBook : m_OrderBooks)
+		if (m_OrderBooks.find(newOrderSingle.getSymbol()) != m_OrderBooks.end())	// OrderBook already exists for that symbol
 		{
-			if (orderBook.getSymbol() == newOrderSingle.getSymbol())
-			{
-				orderBook.AddNewOrderSingle(newOrderSingle);
-			}
+			m_OrderBooks
+				.at(newOrderSingle.getSymbol())
+				.AddNewOrderSingle(newOrderSingle);
 		}
-	}
-
-	bool Market::HasOrderBook(std::string symbol)
-	{
-		for (OrderBook orderBook : m_OrderBooks)
+		else
 		{
-			if (orderBook.getSymbol() == symbol) return true;
+			OrderBook& newOrderBook = AddOrderBook({ newOrderSingle.getSymbol() });	// OrderBook for that symbol needs to be created and added to the market
+			newOrderBook.AddNewOrderSingle(newOrderSingle);
 		}
-
-		return false;
 	}
 
 	std::ostream& operator<<(std::ostream& out, const Market& other)
 	{
-		for (OrderBook orderBook : other.m_OrderBooks)
+		for (auto&[symbol, orderBook] : other.m_OrderBooks)
 		{
-			out << "**********************************************************\n";
-			out << "\tOrder Book " << orderBook.getSymbol() << std::endl;
-			out << "\t" << orderBook << std::endl;
-			out << "**********************************************************\n";
+			out << "Order Book: " << orderBook.getSymbol() << "\n";
+			out << orderBook << "\n";
 		}
 
 		return out;

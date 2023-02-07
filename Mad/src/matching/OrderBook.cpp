@@ -2,58 +2,82 @@
 
 namespace Mad {
 
-	void OrderBook::AddNewOrderSingle(const NewOrderSingle& newOrderSingle)
+	void OrderBook::AddNewOrderSingle(NewOrderSingle& newOrderSingle)
 	{
-		if (newOrderSingle.getSide() == Side::BUY)
+		uint64_t price = newOrderSingle.getPrice();
+		uint64_t qty = newOrderSingle.getOrderQtyData();
+
+		switch (newOrderSingle.getSide())
 		{
-			for (Level& bid : m_Bids)
+		case Side::BUY:
+		{
+			if (m_Asks.find(price) != m_Asks.end())
 			{
-				if (bid.getPrice() == newOrderSingle.getPrice())
+				Level& askLevel = m_Asks.at(price);
+
+				if (qty < askLevel.getTotalVolume())
 				{
-					bid.AddNewOrderSingle(newOrderSingle);
-					return;
+					askLevel.ExecuteOrder(newOrderSingle);
+					break;
 				}
+				else if (qty == askLevel.getTotalVolume())
+				{
+					m_Asks.erase(price);
+					break;
+				}
+
+				newOrderSingle.setOrderQtyData(qty - askLevel.getTotalVolume());
+				m_Asks.erase(price);
 			}
 
-			Level newBidLevel(newOrderSingle.getPrice());
-			newBidLevel.AddNewOrderSingle(newOrderSingle);
-			m_Bids.push_back(newBidLevel);
+			m_Bids.emplace(price, newOrderSingle.getPrice());	// Create the price level
+			m_Bids.at(price).AddNewOrderSingle(newOrderSingle);
+			break;
 		}
-		else if (newOrderSingle.getSide() == Side::SELL)
+		case Side::SELL:
 		{
-			for (Level& ask : m_Asks)
+			if (m_Bids.find(price) != m_Bids.end())
 			{
-				if (ask.getPrice() == newOrderSingle.getPrice())
+				Level& bidLevel = m_Bids.at(price);
+
+				if (qty < bidLevel.getTotalVolume())
 				{
-					ask.AddNewOrderSingle(newOrderSingle);
-					return;
+					bidLevel.ExecuteOrder(newOrderSingle);
+					break;
 				}
+				else if (qty == bidLevel.getTotalVolume())
+				{
+					m_Bids.erase(price);
+					break;
+				}
+
+				newOrderSingle.setOrderQtyData(qty - bidLevel.getTotalVolume());
+				m_Bids.erase(price);
 			}
 
-			Level newAskLevel(newOrderSingle.getPrice());
-			newAskLevel.AddNewOrderSingle(newOrderSingle);
-			m_Asks.push_back(newAskLevel);
+			m_Asks.emplace(price, newOrderSingle.getPrice());
+			m_Asks.at(price).AddNewOrderSingle(newOrderSingle);
+			break;
 		}
-		else
-		{
-			std::cerr << "Unknown side, must be a bid or ask" << std::endl;
+
+		default:
+			std::cerr << "Unknown side\n";
+			break;
 		}
 	}
 
 	std::ostream& operator<<(std::ostream& out, const OrderBook& other)
 	{
-		out << "\n\tBids" << std::endl;
-		out << "\tTotal Volume\tPrice\n";
-		for (Level bid : other.m_Bids)
+		out << "Bids\n";
+		for (auto& [price, bidLevel] : other.m_Bids)
 		{
-			out << bid;
+			out << "Bid Level of Price: " << price << "\n" << bidLevel;
 		}
 
-		out << "\n\tAsks" << std::endl;
-		out << "\tTotal Volume\tPrice\n";
-		for (Level ask : other.m_Asks)
+		out << "Asks\n";;
+		for (auto& [price, askLevel] : other.m_Asks)
 		{
-			out << ask;
+			out << "Ask Level of Price: " << price << "\n" << askLevel;
 		}
 
 		return out;
