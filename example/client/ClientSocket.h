@@ -2,6 +2,8 @@
 
 #include <iostream>
 #include <string>
+#include <ctime>
+#include <time.h>
 
 #include <WinSock2.h>
 #include <WS2tcpip.h>

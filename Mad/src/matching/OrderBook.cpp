@@ -2,64 +2,39 @@
 
 namespace Mad {
 
-	void OrderBook::AddNewOrderSingle(NewOrderSingle& newOrderSingle)
+	void OrderBook::AddLimitOrder(const LimitOrder& limitOrder)
 	{
-		uint64_t price = newOrderSingle.getPrice();
-		uint64_t qty = newOrderSingle.getOrderQtyData();
+		uint64_t price = limitOrder.getPrice();
+		uint64_t qty = limitOrder.getQty();
 
-		switch (newOrderSingle.getSide())
+		switch (limitOrder.getSide())
 		{
 		case Side::BUY:
 		{
-			if (m_Asks.find(price) != m_Asks.end())
+			if (m_Bids.find(price) == m_Bids.end())
 			{
-				Level& askLevel = m_Asks.at(price);
-
-				if (qty < askLevel.getTotalVolume())
-				{
-					askLevel.ExecuteOrder(newOrderSingle);
-					break;
-				}
-				else if (qty == askLevel.getTotalVolume())
-				{
-					m_Asks.erase(price);
-					break;
-				}
-
-				newOrderSingle.setOrderQtyData(qty - askLevel.getTotalVolume());
-				m_Asks.erase(price);
+				m_Bids.emplace(price, limitOrder);
+				m_BidPrices.push_back(price);
 			}
 
-			m_Bids.emplace(price, newOrderSingle.getPrice());	// Create the price level
-			m_Bids.at(price).AddNewOrderSingle(newOrderSingle);
+			m_Bids.at(price).AddLimitOrder(limitOrder);
+			m_TotalBidsVolume += qty;
+			
 			break;
 		}
 		case Side::SELL:
 		{
-			if (m_Bids.find(price) != m_Bids.end())
+			if (m_Asks.find(price) == m_Asks.end())
 			{
-				Level& bidLevel = m_Bids.at(price);
-
-				if (qty < bidLevel.getTotalVolume())
-				{
-					bidLevel.ExecuteOrder(newOrderSingle);
-					break;
-				}
-				else if (qty == bidLevel.getTotalVolume())
-				{
-					m_Bids.erase(price);
-					break;
-				}
-
-				newOrderSingle.setOrderQtyData(qty - bidLevel.getTotalVolume());
-				m_Bids.erase(price);
+				m_Asks.emplace(price, limitOrder);
+				m_AskPrices.push_back(price);
 			}
 
-			m_Asks.emplace(price, newOrderSingle.getPrice());
-			m_Asks.at(price).AddNewOrderSingle(newOrderSingle);
+			m_Asks.at(price).AddLimitOrder(limitOrder);
+			m_TotalAsksVolume += qty;
+
 			break;
 		}
-
 		default:
 			std::cerr << "Unknown side\n";
 			break;
@@ -68,16 +43,20 @@ namespace Mad {
 
 	std::ostream& operator<<(std::ostream& out, const OrderBook& other)
 	{
-		out << "Bids\n";
+		out <<
+			"Symbol: " << other.m_Symbol << "\t" <<
+			"Total Bids: " << other.m_TotalBidsVolume << "\t" <<
+			"Total Asks: " << other.m_TotalAsksVolume << "\t" <<
+			"\n";
+
 		for (auto& [price, bidLevel] : other.m_Bids)
 		{
-			out << "Bid Level of Price: " << price << "\n" << bidLevel;
+			out << bidLevel;
 		}
 
-		out << "Asks\n";;
 		for (auto& [price, askLevel] : other.m_Asks)
 		{
-			out << "Ask Level of Price: " << price << "\n" << askLevel;
+			out << askLevel;
 		}
 
 		return out;

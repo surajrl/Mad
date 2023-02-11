@@ -10,8 +10,12 @@ namespace Mad {
 		{
 		case 0:
 			ProcessBidRequest();
+			break;
 		case 18:
 			ProcessNewOrderSingle(message);
+			break;
+		default:
+			std::cerr << "Unknown message type" << std::endl;
 		}
 	}
 
@@ -19,7 +23,22 @@ namespace Mad {
 	{
 		NewOrderSingle newOrderSingle(message);
 		
-		m_Market.AddNewOrderSingle(newOrderSingle);
+		switch (newOrderSingle.getOrdType())
+		{
+		case LIMIT:
+		{
+			LimitOrder limitOrder(newOrderSingle);
+			m_Market.AddLimitOrder(limitOrder);
+			break;
+		}
+		case MARKET:
+		{
+			// TODO
+		}
+		default:
+			std::cerr << "Unknown order type" << std::endl;
+		}
+
 
 		std::cout << m_Market;
 	}

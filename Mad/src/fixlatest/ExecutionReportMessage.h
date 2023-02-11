@@ -1,0 +1,8 @@
+namespace Mad {
+
+	class ExecutionReportMessage
+	{
+
+	};
+
+}

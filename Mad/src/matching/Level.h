@@ -1,7 +1,7 @@
 #pragma once
 
 #include <iostream>
-#include <queue>
+#include <vector>
 
 #include "../fixlatest/NewOrderSingle.h"
 
@@ -9,25 +9,21 @@
 
 namespace Mad {
 
-	class Level {
-	public:
-		Level(uint64_t price) : m_Price(price), m_TotalVolume((uint64_t)0) {};
+	struct Level {
+		Level(const LimitOrder& limitOrder) : m_Price(limitOrder.getPrice()), m_TotalVolume(0) {};
 		
 		uint64_t getPrice()			const { return m_Price; };
 		uint64_t getTotalVolume()	const { return m_TotalVolume; };
 
-		bool isEmpty() { return m_Orders.empty(); };
+		bool isEmpty() { return m_LimitOrders.empty(); };
 
-		void AddNewOrderSingle(const NewOrderSingle& order);
-		void ExecuteOrder(const NewOrderSingle& order);
+		void AddLimitOrder(const LimitOrder& limitOrder) const;
 
 		friend std::ostream& operator<<(std::ostream& out, const Level& other);
 
-	private:
-		uint64_t m_Price;
-		uint64_t m_TotalVolume;
-
-		std::vector<Order> m_Orders;
+		uint64_t m_Price;								// Price of the level
+		mutable uint64_t m_TotalVolume;					// Total amount of orders in the price level
+		mutable std::vector<LimitOrder> m_LimitOrders;	// All the orders in this level
 	};
 
 }

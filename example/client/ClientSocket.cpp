@@ -86,16 +86,6 @@ void ClientSocket::Run()
 	if (CreateSocket())
 	{
 
-#if 0
-		while (true)
-		{
-			std::cout << "> ";
-			std::getline(std::cin, sendBuffer);
-			
-			Send(sendBuffer);
-			Receive();
-		}
-#else
 		while (true)
 		{
 			std::string symbol;
@@ -117,11 +107,16 @@ void ClientSocket::Run()
 
 			std::cout << "\n";
 
-			std::string message = "8=FIX.4.49=14835=D34=108049=TESTBUY152=20180920-18:14:19.50856=TESTSELL111=63673064027889863415=USD21=238=" + quantity + "40=244=" + price + "54=" + side + "55=" + symbol + "60=20180920-18:14:19.49210=092";
+			std::time_t now = std::time(NULL);
+			std::tm now_tm;
+			gmtime_s(&now_tm, &now);
+			char timestamp[42];
+			std::strftime(timestamp, sizeof(timestamp), "%Y%m%d-%X", &now_tm);
+
+			std::string message = "8=FIX.4.49=14835=D34=108049=TESTBUY152=20180920-18:14:19.50856=TESTSELL111=63673064027889863415=USD21=238=" + quantity + "40=244=" + price + "54=" + side + "55=" + symbol + "60=" + timestamp + "10=092";
 
 			Send(message);
 		}
-#endif
 	}
 	
 	closesocket(m_ConnectSocket);

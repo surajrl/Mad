@@ -145,7 +145,7 @@
     <ClInclude Include="src\matching\OrderBook.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\matching\Order.cpp" />
+    <ClCompile Include="src\fixlatest\ExecutionReportMessage.h" />
     <ClCompile Include="src\EngineServer.cpp" />
     <ClCompile Include="src\fixlatest\FIXHandler.cpp" />
     <ClCompile Include="src\fixlatest\Message.cpp" />
