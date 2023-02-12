@@ -26,15 +26,4 @@ namespace Mad {
 				.AddLimitOrder(limitOrder);
 		}
 	}
-	
-	std::ostream& operator<<(std::ostream& out, const Market& other)
-	{
-		for (auto&[symbol, orderBook] : other.m_OrderBooks)
-		{
-			out << orderBook << "\n";
-		}
-
-		return out;
-	}
-
 }

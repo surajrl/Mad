@@ -39,8 +39,6 @@ namespace Mad {
 			std::cerr << "Unknown order type" << std::endl;
 		}
 
-
-		std::cout << m_Market;
+		std::cout << m_Market.getOrderBook("MSFT");
 	}
-
 }

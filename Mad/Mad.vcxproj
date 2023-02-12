@@ -150,7 +150,6 @@
     <ClCompile Include="src\fixlatest\FIXHandler.cpp" />
     <ClCompile Include="src\fixlatest\Message.cpp" />
     <ClCompile Include="src\fixlatest\NewOrderSingle.cpp" />
-    <ClCompile Include="src\matching\Level.cpp" />
     <ClCompile Include="src\matching\Market.cpp" />
     <ClCompile Include="src\matching\OrderBook.cpp" />
   </ItemGroup>

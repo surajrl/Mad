@@ -9,21 +9,21 @@
 
 namespace Mad {
 
-	struct Level {
-		Level(const LimitOrder& limitOrder) : m_Price(limitOrder.getPrice()), m_TotalVolume(0) {};
+	struct Level
+	{
+		Level(const uint64_t& price, const uint64_t& qty) : price(price), totalVolume(qty) {};
 		
-		uint64_t getPrice()			const { return m_Price; };
-		uint64_t getTotalVolume()	const { return m_TotalVolume; };
-
-		bool isEmpty() { return m_LimitOrders.empty(); };
-
-		void AddLimitOrder(const LimitOrder& limitOrder) const;
-
-		friend std::ostream& operator<<(std::ostream& out, const Level& other);
-
-		uint64_t m_Price;								// Price of the level
-		mutable uint64_t m_TotalVolume;					// Total amount of orders in the price level
-		mutable std::vector<LimitOrder> m_LimitOrders;	// All the orders in this level
+		uint64_t price;					
+		uint64_t totalVolume;	
+		std::vector<LimitOrder> limitOrders;
 	};
 
+	struct LevelNode : public Level
+	{
+		LevelNode(const Level& level) : Level(level), leftLevel(nullptr), rightLevel(nullptr) {};
+		LevelNode(const uint64_t& price, const uint64_t& qty) : Level(price, qty), leftLevel(nullptr), rightLevel(nullptr) {};
+		
+		LevelNode* leftLevel;
+		LevelNode* rightLevel;
+	};
 }

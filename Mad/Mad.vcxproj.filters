@@ -62,9 +62,6 @@
     <ClCompile Include="src\fixlatest\NewOrderSingle.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\matching\Level.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\matching\Market.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

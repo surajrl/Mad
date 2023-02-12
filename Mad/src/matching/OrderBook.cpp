@@ -11,27 +11,40 @@ namespace Mad {
 		{
 		case Side::BUY:
 		{
-			if (m_Bids.find(price) == m_Bids.end())
+			LevelNode* levelNode = FindLevel(price, m_Bids);
+
+			if (levelNode == nullptr)
 			{
-				m_Bids.emplace(price, limitOrder);
-				m_BidPrices.push_back(price);
+				Level newLevel(price, qty);
+				m_Bids = AddLevel(newLevel, m_Bids);
+				
+				m_Bids->limitOrders.push_back(limitOrder);
+				m_TotalBids += qty;
+			}
+			else
+			{
+				levelNode->limitOrders.push_back(limitOrder);
+				m_TotalBids += qty;
 			}
 
-			m_Bids.at(price).AddLimitOrder(limitOrder);
-			m_TotalBidsVolume += qty;
-			
 			break;
 		}
 		case Side::SELL:
 		{
-			if (m_Asks.find(price) == m_Asks.end())
+			LevelNode* levelNode = FindLevel(price, m_Asks);
+			if (levelNode == nullptr)
 			{
-				m_Asks.emplace(price, limitOrder);
-				m_AskPrices.push_back(price);
-			}
+				Level newLevel(price, qty);
+				m_Asks = AddLevel(newLevel, m_Asks);
 
-			m_Asks.at(price).AddLimitOrder(limitOrder);
-			m_TotalAsksVolume += qty;
+				m_Asks->limitOrders.push_back(limitOrder);
+				m_TotalAsks += qty;
+			}
+			else
+			{
+				levelNode->limitOrders.push_back(limitOrder);
+				m_TotalAsks += qty;
+			}
 
 			break;
 		}
@@ -41,25 +54,63 @@ namespace Mad {
 		}
 	}
 
-	std::ostream& operator<<(std::ostream& out, const OrderBook& other)
+	LevelNode* OrderBook::AddLevel(const Level& level, LevelNode* levelTree)
 	{
-		out <<
-			"Symbol: " << other.m_Symbol << "\t" <<
-			"Total Bids: " << other.m_TotalBidsVolume << "\t" <<
-			"Total Asks: " << other.m_TotalAsksVolume << "\t" <<
-			"\n";
-
-		for (auto& [price, bidLevel] : other.m_Bids)
+		if (levelTree == nullptr)
 		{
-			out << bidLevel;
+			levelTree = new LevelNode(level);
+			return levelTree;
 		}
-
-		for (auto& [price, askLevel] : other.m_Asks)
+		else
 		{
-			out << askLevel;
-		}
+			if (level.price < levelTree->price)
+				levelTree = AddLevel(level, levelTree->leftLevel);
+			else if (level.price >= levelTree->price)
+				levelTree = AddLevel(level, levelTree->rightLevel);
 
-		return out;
+			return levelTree;
+		}
 	}
 
+	LevelNode* OrderBook::FindLevel(const uint64_t& price, LevelNode* levelTree)
+	{
+		if (levelTree != nullptr)
+		{
+			if (price < levelTree->price)
+				return FindLevel(price, levelTree->leftLevel);
+			else if (price >= levelTree->price)
+				return FindLevel(price, levelTree->rightLevel);
+			else
+				return levelTree;
+		}
+
+		return nullptr;
+	}
+
+
+	LevelNode* OrderBook::BestBid(LevelNode* bids)
+	{
+		if (bids != nullptr)
+		{
+			if (bids->leftLevel == nullptr)
+				return bids;
+			else
+				return BestBid(bids->leftLevel);
+		}
+		
+		return nullptr;
+	}
+	
+	LevelNode* OrderBook::BestAsk(LevelNode* asks)
+	{
+		if (asks != nullptr)
+		{
+			if (asks->rightLevel == nullptr)
+				return asks;
+			else
+				return BestAsk(asks->rightLevel);
+		}
+
+		return nullptr;
+	}
 }

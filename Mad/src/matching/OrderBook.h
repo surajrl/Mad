@@ -14,36 +14,49 @@ namespace Mad {
 	class OrderBook {
 	public:
 		OrderBook(const std::string& symbol)
-			: m_Symbol(symbol), m_TotalBidsVolume(0), m_TotalAsksVolume(0)
+			: m_Symbol(symbol), m_TotalBids(0), m_TotalAsks(0), m_Bids(nullptr), m_Asks(nullptr)
 		{};
 
 		const std::string& getSymbol() const { return m_Symbol; };
 		
-		const uint64_t& getTotalBidsVolume() const { return m_TotalBidsVolume; }
-		const uint64_t& getTotalAsksVolume() const { return m_TotalAsksVolume; };
+		const uint64_t& getTotalBidsVolume() const { return m_TotalBids; }
+		const uint64_t& getTotalAsksVolume() const { return m_TotalAsks; };
 		
-		const Level& getBidLevel(const uint64_t priceLevel)	const { return m_Bids.at(priceLevel); };
-		const Level& getaAskLevel(const uint64_t priceLevel) const { return m_Asks.at(priceLevel); };
-
-		const Level& BestBid() const { return m_Bids.at(*std::max_element(m_BidPrices.begin(), m_BidPrices.end())); }
-		const Level& BestAsk() const { return m_Asks.at(*std::min_element(m_AskPrices.begin(), m_AskPrices.end())); }
-
 		void AddLimitOrder(const LimitOrder& limitOrder);
-		void CancleLimitOrder(const LimitOrder& limitOrder) { std::cout << limitOrder.getClOrdID() << " canceled" << std::endl; };
-		void ExecuteMarketOrder(const MarketOrder& marketOrder);
+		void CancelLimitOrder(const LimitOrder& limitOrder) { std::cout << limitOrder.getClOrdID() << " canceled" << std::endl; };
+		void ExecuteMarketOrder(const MarketOrder& marketOrder) { /* TODO */ };
 
-		friend std::ostream& operator<<(std::ostream& out, const OrderBook& other);
+		friend std::ostream& operator<<(std::ostream& out, const OrderBook& other)
+		{
+			if (other.m_Bids != nullptr)
+			{
+				out << other.m_Bids->price << std::endl;
+				out << other.m_TotalBids << std::endl;
+			}
+			
+			if (other.m_Asks != nullptr)
+			{
+				out << other.m_Asks->price << std::endl;
+				out << other.m_TotalAsks << std::endl;
+			}
+			
+			return out;
+		};
 
 	private:
 		std::string m_Symbol;
 
-		std::unordered_map<uint64_t, Level> m_Bids;
-		std::unordered_map<uint64_t, Level> m_Asks;
+		LevelNode* m_Bids;	// Binary tree containing the bids the current LevelNode is the last entered node
+		LevelNode* m_Asks;	// Binary tree containing the asks the current LevelNode is the last entered node
 
-		std::vector<uint64_t> m_BidPrices;
-		std::vector<uint64_t> m_AskPrices;
+		uint64_t m_TotalBids;
+		uint64_t m_TotalAsks;
 
-		uint64_t m_TotalBidsVolume;
-		uint64_t m_TotalAsksVolume;
+		LevelNode* AddLevel(const Level& level, LevelNode* levelTree);
+		LevelNode* DeleteLevel(const Level& level) { /* TODO */ };
+		LevelNode* FindLevel(const uint64_t& price, LevelNode* levelTree);
+		LevelNode* BestBid(LevelNode* bids);									// Returns the highest bid
+		LevelNode* BestAsk(LevelNode* asks);									// Returns the lowest ask
+
 	};
 }
