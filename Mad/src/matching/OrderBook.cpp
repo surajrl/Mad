@@ -11,11 +11,10 @@ namespace Mad {
 		{
 		case Side::BUY:
 		{
-			// Level not found so we need to add the level to the bids
 			if (FindLevel(price, m_Bids) == nullptr)
 			{
-				Level newLevel(price);
-				AddLevel(newLevel, m_Bids);
+				Level newLevel(Side::BUY, price);
+				AddLevel(newLevel, m_Bids, nullptr);
 				m_BidsSize++;
 			}
 
@@ -25,15 +24,16 @@ namespace Mad {
 			levelNode->totalVolume += qty;
 			m_TotalBids += qty;
 
+			std::cout << "[LIMIT ORDER ADDED]\t{" << limitOrder.getClOrdID() << "}\t" << limitOrder.getSymbol() << " BID " << qty << " @ " << price << std::endl;
+
 			break;
 		}
 		case Side::SELL:
 		{
-			// Level not found so we need to add the level to the bids
 			if (FindLevel(price, m_Asks) == nullptr)
 			{
-				Level newLevel(price);
-				AddLevel(newLevel, m_Asks);
+				Level newLevel(Side::SELL, price);
+				AddLevel(newLevel, m_Asks, nullptr);
 				m_AsksSize++;
 			}
 
@@ -43,6 +43,8 @@ namespace Mad {
 			levelNode->totalVolume += qty;
 			m_TotalAsks+= qty;
 
+			std::cout << "[LIMIT ORDER ADDED]\t{" << limitOrder.getClOrdID() << "}\t" << limitOrder.getSymbol() << " ASK " << qty << " @ " << price << std::endl;
+
 			break;
 		}
 		default:
@@ -51,28 +53,43 @@ namespace Mad {
 		}
 	}
 
-	LevelNode* OrderBook::AddLevel(const Level& level, LevelNode* levelTree)
+	LevelNode* OrderBook::AddLevel(const Level& level, LevelNode* currLevelNode, LevelNode* prevLevelNode)
 	{
-		if (levelTree == nullptr)
+		if (currLevelNode == nullptr)
 		{
-			// Creates the new level node
-			levelTree = new LevelNode(level);
+			currLevelNode = new LevelNode(level);
 
-			if (m_Bids == nullptr) /* TODO: Check if the limit is a BUY or SELL */
+			if (level.side == Side::BUY && m_Bids == nullptr)
 			{
-				m_Bids = levelTree;
+				m_Bids = currLevelNode;
+			}
+			else if (level.side == Side::SELL && m_Asks == nullptr)
+			{
+				m_Asks = currLevelNode;
 			}
 			else
 			{
-				/* TODO: The new level is not the root, so assign parent */
+				currLevelNode->parentLevelNode = prevLevelNode;
 			}
 		}
-		else if (level.price < levelTree->price)
-			levelTree->leftLevelNode = AddLevel(level, levelTree->leftLevelNode);
-		else if (level.price >= levelTree->price)
-			levelTree->rightLevelNode = AddLevel(level, levelTree->rightLevelNode);
+		else if (level.price < currLevelNode->price)
+			currLevelNode->leftLevelNode = AddLevel(level, currLevelNode->leftLevelNode, currLevelNode);
+		else if (level.price >= currLevelNode->price)
+			currLevelNode->rightLevelNode = AddLevel(level, currLevelNode->rightLevelNode, currLevelNode);
 
-		return levelTree;
+		/* Update best bid or best ask */
+		if (level.side == Side::BUY)
+		{
+			if (m_BestBid == nullptr) m_BestBid = currLevelNode;
+			else if (m_BestBid->price < level.price) m_BestBid = currLevelNode;
+		}
+		else if (level.side == Side::SELL)
+		{
+			if (m_BestAsk == nullptr) m_BestAsk = currLevelNode;
+			else if (m_BestAsk->price > level.price) m_BestAsk = currLevelNode;
+		}
+
+		return currLevelNode;
 	}
 
 	LevelNode* OrderBook::FindLevel(const uint64_t& price, LevelNode* levelNode)
@@ -97,10 +114,10 @@ namespace Mad {
 	{
 		if (bids != nullptr)
 		{
-			if (bids->leftLevelNode == nullptr)
+			if (bids->rightLevelNode == nullptr)
 				return bids;
 			else
-				return BestBid(bids->leftLevelNode);
+				return BestBid(bids->rightLevelNode);
 		}
 		
 		return nullptr;
@@ -110,10 +127,10 @@ namespace Mad {
 	{
 		if (asks != nullptr)
 		{
-			if (asks->rightLevelNode == nullptr)
+			if (asks->leftLevelNode== nullptr)
 				return asks;
 			else
-				return BestAsk(asks->rightLevelNode);
+				return BestAsk(asks->leftLevelNode);
 		}
 
 		return nullptr;

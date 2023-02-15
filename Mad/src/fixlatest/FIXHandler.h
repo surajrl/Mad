@@ -16,6 +16,8 @@ namespace Mad {
 
 		void ProcessMessage(std::string message);
 
+		void PrintOrderBook() { std::cout << m_Market.getOrderBook("MSFT"); };
+
 		void ProcessBidRequest() {};
 		void ProcessBidResponse() {};
 		void ProcessCrossOrderCancelReplaceRequest() {};

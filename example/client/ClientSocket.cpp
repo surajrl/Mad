@@ -85,26 +85,20 @@ void ClientSocket::Run()
 
 	if (CreateSocket())
 	{
-		while (true)
+		int i = 0;
+		while (i != 10)
 		{
-			std::string symbol;
-			std::string price;
-			std::string quantity;
-			std::string side;
+			std::string symbol = "MSFT";
 
-			std::cout << "Enter Symbol: ";
-			std::cin >> symbol;
-			
-			std::cout << "Enter Price: ";
-			std::cin >> price;
+			std::random_device rd; // obtain a random number from hardware
+			std::mt19937 gen(rd()); // seed the generator
 
-			std::cout << "Enter Quantity: ";
-			std::cin >> quantity;
+			std::uniform_int_distribution<> distr(1, 2); // define the range
+			std::string side = std::to_string(distr(gen));
 
-			std::cout << "Enter 1 for BUY or 2 for SELL: ";
-			std::cin >> side;
-
-			std::cout << "\n";
+			std::uniform_int_distribution<> distr2(1, 100); // define the range
+			std::string price = std::to_string(distr2(gen));
+			std::string quantity = std::to_string(distr2(gen));
 
 			std::time_t now = std::time(NULL);
 			std::tm now_tm;
@@ -112,15 +106,17 @@ void ClientSocket::Run()
 			char timestamp[42];
 			std::strftime(timestamp, sizeof(timestamp), "%Y%m%d-%X", &now_tm);
 
-			srand((unsigned) time(NULL));
-
-			std::string message = "8=FIX.4.49=14835=D34=108049=TESTBUY152=20180920-18:14:19.50856=TESTSELL111=" + std::to_string(rand()) + "15=USD21=238=" + quantity + "40=244=" + price + "54=" + side + "55=" + symbol + "60=" + timestamp + "10=092";
-
+			srand((unsigned)time(NULL));
+			std::string message = "8=FIX.4.49=14835=D34=108049=TESTBUY152=20180920-18:14:19.50856=TESTSELL111=" + std::to_string(i) + "15=USD21=238=" + quantity + "40=244=" + price + "54=" + side + "55=" + symbol + "60=" + timestamp + "10=092";
 			Send(message);
+			
+			Sleep(1);
+
+			i++;
 		}
+
+		closesocket(m_ConnectSocket);
 	}
-	
-	closesocket(m_ConnectSocket);
 }
 
 
