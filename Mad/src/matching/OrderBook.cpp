@@ -9,11 +9,11 @@ namespace Mad {
 
 		switch (limitOrder.getSide())
 		{
-		case Side::BUY:
+		case BUY:
 		{
 			if (FindLevel(price, m_Bids) == nullptr)
 			{
-				Level newLevel(Side::BUY, price);
+				Level newLevel(BUY, price);
 				AddLevel(newLevel, m_Bids, nullptr);
 				m_BidsSize++;
 			}
@@ -22,17 +22,17 @@ namespace Mad {
 
 			levelNode->limitOrders.push_back(limitOrder);
 			levelNode->totalVolume += qty;
-			m_TotalBids += qty;
+			m_TotalBidsVolume += qty;
 
-			std::cout << "[LIMIT ORDER ADDED]\t{" << limitOrder.getClOrdID() << "}\t" << limitOrder.getSymbol() << " BID " << qty << " @ " << price << std::endl;
+			std::cout << "[ LIMIT ORDER {" + limitOrder.getClOrdID() + "} ]\tADDED\t" << limitOrder.getSymbol() << " BID " << qty << " @ " << price << std::endl;
 
 			break;
 		}
-		case Side::SELL:
+		case SELL:
 		{
 			if (FindLevel(price, m_Asks) == nullptr)
 			{
-				Level newLevel(Side::SELL, price);
+				Level newLevel(SELL, price);
 				AddLevel(newLevel, m_Asks, nullptr);
 				m_AsksSize++;
 			}
@@ -41,14 +41,56 @@ namespace Mad {
 
 			levelNode->limitOrders.push_back(limitOrder);
 			levelNode->totalVolume += qty;
-			m_TotalAsks+= qty;
+			m_TotalAsksVolume+= qty;
 
-			std::cout << "[LIMIT ORDER ADDED]\t{" << limitOrder.getClOrdID() << "}\t" << limitOrder.getSymbol() << " ASK " << qty << " @ " << price << std::endl;
+			std::cout << "\t[ LIMIT ORDER {" + limitOrder.getClOrdID() + "} ]\tADDED\t" << limitOrder.getSymbol() << " ASK " << qty << " @ " << price << std::endl;
 
 			break;
 		}
 		default:
 			std::cerr << "Unknown side\n";
+			break;
+		}
+	}
+
+	void OrderBook::MatchMarketOrder(const MarketOrder& marketOrder)
+	{
+		uint64_t qty = marketOrder.getQty();
+
+		switch (marketOrder.getSide())
+		{
+		case BUY:
+		{
+			if (m_BestAsk == nullptr)
+			{
+				std::cout << "\t[ MARKET ORDER{" + marketOrder.getClOrdID()+ "}]\tNOT FILLED" << std::endl;
+				return;
+			}
+
+			while (!m_BestAsk->FillMarketOrder(marketOrder))
+				m_BestAsk = UpdateBestAsk(m_Asks);
+
+			m_TotalAsksVolume -= qty;
+
+			break;
+		}
+		case SELL:
+		{
+			if (m_BestBid == nullptr)
+			{
+				std::cout << "\t[ MARKET ORDER {" + marketOrder.getClOrdID() + "} ]\tNOT FILLED" << std::endl;
+				return;
+			}
+
+			while (!m_BestBid->FillMarketOrder(marketOrder))
+				m_BestBid = UpdateBestBid(m_Bids);
+
+			m_TotalBidsVolume -= qty;
+
+
+			break;
+		}
+		default:
 			break;
 		}
 	}
@@ -110,27 +152,27 @@ namespace Mad {
 	}
 
 
-	LevelNode* OrderBook::BestBid(LevelNode* bids)
+	LevelNode* OrderBook::UpdateBestBid(LevelNode* bids)
 	{
 		if (bids != nullptr)
 		{
 			if (bids->rightLevelNode == nullptr)
 				return bids;
 			else
-				return BestBid(bids->rightLevelNode);
+				return UpdateBestBid(bids->rightLevelNode);
 		}
 		
 		return nullptr;
 	}
 	
-	LevelNode* OrderBook::BestAsk(LevelNode* asks)
+	LevelNode* OrderBook::UpdateBestAsk(LevelNode* asks)
 	{
 		if (asks != nullptr)
 		{
 			if (asks->leftLevelNode== nullptr)
 				return asks;
 			else
-				return BestAsk(asks->leftLevelNode);
+				return UpdateBestAsk(asks->leftLevelNode);
 		}
 
 		return nullptr;

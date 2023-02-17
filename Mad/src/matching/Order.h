@@ -22,20 +22,48 @@ namespace Mad {
 			m_Side(newOrderSingle.getSide())
 		{};
 
-		std::string getClOrdID()		const { return m_ClOrdID; };
-		std::string	getSymbol()			const { return m_Symbol; };
-		std::string getTransactTime()	const { return m_TransactTime; };
-		uint64_t	getQty()			const { return m_Qty; };
-		Side		getSide()			const { return m_Side; };
+		const std::string&	getClOrdID()		const { return m_ClOrdID; };
+		const std::string&	getSymbol()			const { return m_Symbol; };
+		const std::string&	getTransactTime()	const { return m_TransactTime; };
+		const uint64_t&		getQty()			const { return m_Qty; };
+		const Side&			getSide()			const { return m_Side; };
 
-		void setQty(uint64_t qty) { m_Qty = qty; };
-	
+		void Reduce(const uint64_t qtyToReduce) const
+		{
+			if (qtyToReduce > m_Qty)
+			{
+				std::cerr << "qtyToReduce > m_Qty" << std::endl;
+				return;
+			}
+
+			m_Qty -= qtyToReduce;
+		};
+
+		void Fill() const
+		{
+			m_Qty = 0;
+			std::cout << "\t[ ORDER {" + m_ClOrdID + "} ]\tFILLED" << std::endl;
+		};
+
+		void PartiallyFill(const uint64_t qtyToReduce) const
+		{
+			if (qtyToReduce > m_Qty)
+			{
+				std::cerr << "qtyToReduce > m_Qty" << std::endl;
+				return;
+			}
+
+			m_Qty -= qtyToReduce;
+			std::cout << "\t[ ORDER {" + m_ClOrdID + "} ]\tPARTIALLY FILLED" << std::endl;
+
+		}
+
 	private:
-		std::string m_ClOrdID;
-		std::string m_Symbol;
-		std::string m_TransactTime;
-		uint64_t	m_Qty;
-		Side		m_Side;
+		std::string		m_ClOrdID;
+		std::string		m_Symbol;
+		std::string		m_TransactTime;
+		mutable uint64_t		m_Qty;
+		Side			m_Side;
 	};
 
 	class LimitOrder : public Order

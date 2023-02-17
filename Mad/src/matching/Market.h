@@ -13,6 +13,7 @@ namespace Mad {
 		void AddOrderBook(const OrderBook& orderBook);
 
 		void AddLimitOrder(const LimitOrder& limitOrder);
+		void MatchMarketOrder(const MarketOrder& marketOrder);
 
 		const OrderBook& getOrderBook(const std::string& symbol) { return m_OrderBooks.at(symbol); };
 

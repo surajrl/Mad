@@ -33,10 +33,14 @@ namespace Mad {
 		}
 		case MARKET:
 		{
-			// TODO
+			MarketOrder marketOrder(newOrderSingle);
+			m_Market.MatchMarketOrder(marketOrder);
+			break;
 		}
 		default:
 			std::cerr << "Unknown order type" << std::endl;
 		}
+
+		std::cout << m_Market.getOrderBook("MSFT");
 	}
 }

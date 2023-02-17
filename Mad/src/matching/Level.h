@@ -13,6 +13,35 @@ namespace Mad {
 	{
 		Level(const Side& side, const uint64_t& price) : side(side), price(price), totalVolume(0) {};
 		Level(const Side& side, const uint64_t& price, const uint64_t& qty) : side(side), price(price), totalVolume(qty) {};
+
+		bool FillMarketOrder(const MarketOrder& marketOrder)
+		{
+			for (auto& limitOrder : limitOrders)
+			{
+				if (marketOrder.getQty() > limitOrder.getQty())
+				{
+					totalVolume -= limitOrder.getQty();
+					marketOrder.Reduce(limitOrder.getQty());
+					limitOrder.Fill();
+				}
+				else if(marketOrder.getQty() == limitOrder.getQty())
+				{
+					totalVolume -= limitOrder.getQty();
+					limitOrder.Fill();
+					marketOrder.Fill();
+					return true;
+				}
+				else
+				{
+					totalVolume -= marketOrder.getQty();
+					limitOrder.PartiallyFill(marketOrder.getQty());
+					marketOrder.Fill();
+					return true;
+				}
+			}
+
+			return false;
+		}
 		
 		uint64_t price;
 		uint64_t totalVolume;

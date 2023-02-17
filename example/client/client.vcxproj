@@ -138,6 +138,11 @@
   <ItemGroup>
     <ClInclude Include="ClientSocket.h" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Mad\Mad.vcxproj">
+      <Project>{b0d94eac-e2b5-4f85-b9f2-125f65ebd3b5}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

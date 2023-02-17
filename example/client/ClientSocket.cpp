@@ -79,40 +79,99 @@ int ClientSocket::CreateSocket()
 	return 1;
 }
 
+std::string FIXMessage(
+	const std::string symbol,
+	const Mad::Side side,
+	const uint64_t qty,
+	const uint64_t price
+)
+{
+	std::time_t now = std::time(NULL);
+	std::tm now_tm;
+	gmtime_s(&now_tm, &now);
+	char timestamp[42];
+	std::strftime(timestamp, sizeof(timestamp), "%Y%m%d-%X", &now_tm);
+
+	static int i = 0;
+
+	std::string message = "8=FIX.4.49=14835=D34=108049=TESTBUY152=20180920-18:14:19.50856=TESTSELL111=" + std::to_string(i) + "15=USD21=238=" + std::to_string(qty) + "40=244=" + std::to_string(price) + "54=" + std::to_string(side) + "55=" + symbol + "60=" + timestamp + "10=092";
+	
+	i++;
+	
+	return message;
+}
+
+std::string FIXMessage(
+	const std::string symbol,
+	const Mad::OrdType ordType,
+	const Mad::Side side,
+	const uint64_t qty,
+	const uint64_t price
+)
+{
+	std::time_t now = std::time(NULL);
+	std::tm now_tm;
+	gmtime_s(&now_tm, &now);
+	char timestamp[42];
+	std::strftime(timestamp, sizeof(timestamp), "%Y%m%d-%X", &now_tm);
+	
+	std::string message;
+	
+	static int i = 0;
+	
+	if (ordType == Mad::LIMIT)
+		message = "8=FIX.4.49=14835=D34=108049=TESTBUY152=20180920-18:14:19.50856=TESTSELL111=" + std::to_string(i) + "15=USD21=238=" + std::to_string(qty) + "40="+ std::to_string(ordType) +"44=" + std::to_string(price) + "54=" + std::to_string(side) + "55=" + symbol + "60=" + timestamp + "10=092";
+	else if (ordType == Mad::MARKET)
+		message = "8=FIX.4.49=14835=D34=108049=TESTBUY152=20180920-18:14:19.50856=TESTSELL111=" + std::to_string(i) + "15=USD21=238=" + std::to_string(qty) + "40=" + std::to_string(ordType) + "54=" + std::to_string(side) + "55=" + symbol + "60=" + timestamp + "10=092";
+
+	i++;
+
+	return message;
+}
+
 void ClientSocket::Run()
 {
 	std::string sendBuffer;
 
 	if (CreateSocket())
 	{
-		int i = 0;
-		while (i != 10)
+		//int i = 0;
+		//while (i != 10)
+		//{
+		//	std::string symbol = "MSFT";
+
+		//	std::random_device rd; // obtain a random number from hardware
+		//	std::mt19937 gen(rd()); // seed the generator
+
+		//	std::uniform_int_distribution<> distr(1, 2); // define the range
+		//	std::string side = std::to_string(distr(gen));
+
+		//	std::uniform_int_distribution<> distr2(1, 100); // define the range
+		//	std::string price = std::to_string(distr2(gen));
+		//	std::string quantity = std::to_string(distr2(gen));
+
+		//	std::time_t now = std::time(NULL);
+		//	std::tm now_tm;
+		//	gmtime_s(&now_tm, &now);
+		//	char timestamp[42];
+		//	std::strftime(timestamp, sizeof(timestamp), "%Y%m%d-%X", &now_tm);
+
+		//	srand((unsigned)time(NULL));
+		//	std::string message = "8=FIX.4.49=14835=D34=108049=TESTBUY152=20180920-18:14:19.50856=TESTSELL111=" + std::to_string(i) + "15=USD21=238=" + quantity + "40=244=" + price + "54=" + side + "55=" + symbol + "60=" + timestamp + "10=092";
+		//	Send(message);
+		//	
+		//	Sleep(1);
+
+		//	i++;
+		//}
+
+		while (true)
 		{
-			std::string symbol = "MSFT";
-
-			std::random_device rd; // obtain a random number from hardware
-			std::mt19937 gen(rd()); // seed the generator
-
-			std::uniform_int_distribution<> distr(1, 2); // define the range
-			std::string side = std::to_string(distr(gen));
-
-			std::uniform_int_distribution<> distr2(1, 100); // define the range
-			std::string price = std::to_string(distr2(gen));
-			std::string quantity = std::to_string(distr2(gen));
-
-			std::time_t now = std::time(NULL);
-			std::tm now_tm;
-			gmtime_s(&now_tm, &now);
-			char timestamp[42];
-			std::strftime(timestamp, sizeof(timestamp), "%Y%m%d-%X", &now_tm);
-
-			srand((unsigned)time(NULL));
-			std::string message = "8=FIX.4.49=14835=D34=108049=TESTBUY152=20180920-18:14:19.50856=TESTSELL111=" + std::to_string(i) + "15=USD21=238=" + quantity + "40=244=" + price + "54=" + side + "55=" + symbol + "60=" + timestamp + "10=092";
-			Send(message);
-			
+			Send(FIXMessage("MSFT", Mad::LIMIT, Mad::BUY, 1000, 50));
 			Sleep(1);
+			Send(FIXMessage("MSFT", Mad::MARKET, Mad::SELL, 500, NULL));
 
-			i++;
+			return;
 		}
 
 		closesocket(m_ConnectSocket);

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../../Mad/include/Mad.h"
+
 #include <iostream>
 #include <string>
 #include <ctime>
