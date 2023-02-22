@@ -146,7 +146,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\helpers\BST.cpp" />
-    <ClCompile Include="src\fixlatest\ExecutionReportMessage.h" />
     <ClCompile Include="src\EngineServer.cpp" />
     <ClCompile Include="src\fixlatest\FIXHandler.cpp" />
     <ClCompile Include="src\fixlatest\Message.cpp" />

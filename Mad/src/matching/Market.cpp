@@ -9,39 +9,27 @@ namespace Mad {
 
 	void Market::AddLimitOrder(const LimitOrder& limitOrder)
 	{
-		const std::string symbol = limitOrder.getSymbol();
-		
-		if (m_OrderBooks.find(symbol) != m_OrderBooks.end())
+		try
 		{
-			m_OrderBooks
-				.at(symbol)
-				.AddLimitOrder(limitOrder);
+			OrderBook& orderBook = m_OrderBooks.at(limitOrder.getSymbol());
+			orderBook.AddLimitOrder(limitOrder);
 		}
-		else
+		catch (std::out_of_range ex)
 		{
-			OrderBook newOrderBook(symbol);
-			AddOrderBook(newOrderBook);
-			m_OrderBooks
-				.at(symbol)
-				.AddLimitOrder(limitOrder);
+			std::cerr << "No order book for " << limitOrder.getSymbol() << std::endl;
 		}
 	}
 
 	void Market::MatchMarketOrder(const MarketOrder& marketOrder)
 	{
-		const std::string symbol = marketOrder.getSymbol();
-	
-		if (m_OrderBooks.find(symbol) != m_OrderBooks.end())
+		try
 		{
-			m_OrderBooks
-				.at(symbol)
-				.MatchMarketOrder(marketOrder);
+			OrderBook& orderBook = m_OrderBooks.at(marketOrder.getSymbol());
+			orderBook.MatchMarketOrder(marketOrder);
 		}
-		else
+		catch (std::out_of_range ex)
 		{
-			// Send pending filled status ??
-			// Send not filled status ??
-			std::cerr << "No books for " << symbol << std::endl;
+			std::cerr << "No order book for " << marketOrder.getSymbol() << std::endl;
 		}
 	}
 }

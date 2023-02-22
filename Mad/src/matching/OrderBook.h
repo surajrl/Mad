@@ -31,39 +31,6 @@ namespace Mad {
 		void CancelLimitOrder(const LimitOrder& limitOrder) { std::cout << limitOrder.getClOrdID() << " canceled" << std::endl; };
 		void MatchMarketOrder(const MarketOrder& marketOrder);
 
-		void Print(LevelNode* root) const
-		{
-			if (root != NULL)
-			{
-				Print(root->leftLevelNode);
-				std::cout << "Price: " << root->price << "\tTotal Volume: " << root->totalVolume << std::endl;
-				for (auto & order : root->limitOrders)
-				{
-					std::cout << order.getClOrdID() << "\t" << order.getTransactTime() << "\t" << order.getQty() << std::endl;
-				}
-				Print(root->rightLevelNode);
-			}
-		}
-
-		friend std::ostream& operator<<(std::ostream& out, const OrderBook& other)
-		{
-			if (other.m_Bids != nullptr)
-			{
-				out << "Total Bids Volume: " << other.m_TotalBidsVolume << std::endl;
-				out << "Best Bid (highest bid): " << other.m_BestBid->price << std::endl;
-				other.Print(other.m_Bids);
-			}
-			
-			if (other.m_Asks != nullptr)
-			{
-				out << "Total Asks Volume: " << other.m_TotalAsksVolume << std::endl;
-				out << "Best Ask (lowest ask): " << other.m_BestAsk->price << std::endl;
-				other.Print(other.m_Asks);
-			}
-			
-			return out;
-		};
-
 	private:
 		std::string m_Symbol;
 

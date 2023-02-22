@@ -20,7 +20,7 @@ namespace Mad {
 
 			else
 			{
-				std::cout << "Client " << clientSocket << " disconnected" << std::endl;
+				std::cout << "Client " << clientSocket << " disconnected\n" << std::endl;
 				int shutdownResult = shutdown(clientSocket, SD_SEND);
 
 				if (shutdownResult == SOCKET_ERROR)
@@ -141,7 +141,7 @@ namespace Mad {
 			return -1;
 		}
 		
-		std::cout << "Client " << clientSocket << " connected" << std::endl;
+		std::cout << "Client " << clientSocket << " connected\n" << std::endl;
 
 		return clientSocket;
 	}

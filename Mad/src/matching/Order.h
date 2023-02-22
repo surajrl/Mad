@@ -42,7 +42,7 @@ namespace Mad {
 		void Fill() const
 		{
 			m_Qty = 0;
-			std::cout << "\t[ ORDER {" + m_ClOrdID + "} ]\tFILLED" << std::endl;
+			std::cout << "\t[ORDER {" + m_ClOrdID + "}]\tFILLED" << std::endl;
 		};
 
 		void PartiallyFill(const uint64_t qtyToReduce) const
@@ -54,7 +54,7 @@ namespace Mad {
 			}
 
 			m_Qty -= qtyToReduce;
-			std::cout << "\t[ ORDER {" + m_ClOrdID + "} ]\tPARTIALLY FILLED" << std::endl;
+			std::cout << "\t[ORDER {" + m_ClOrdID + "}]\tPARTIALLY FILLED" << std::endl;
 
 		}
 
@@ -86,6 +86,9 @@ namespace Mad {
 	class MarketOrder : public Order
 	{
 	public:
+		MarketOrder(std::string clOrdID, std::string symbol, std::string transactTime, uint64_t qty, Side side)
+			: Order(clOrdID, symbol, transactTime, qty, side)
+		{};
 		MarketOrder(const NewOrderSingle& newOrderSingle)
 			: Order(newOrderSingle)
 		{};

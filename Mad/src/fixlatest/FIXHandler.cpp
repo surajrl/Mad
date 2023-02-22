@@ -40,7 +40,5 @@ namespace Mad {
 		default:
 			std::cerr << "Unknown order type" << std::endl;
 		}
-
-		std::cout << m_Market.getOrderBook("MSFT");
 	}
 }

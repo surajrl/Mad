@@ -1,0 +1,1 @@
+C:\dev\Mad\tests\mad-tests\x64\Debug\mad-tests.vcxproj.CopyComplete

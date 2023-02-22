@@ -24,7 +24,7 @@ namespace Mad {
 			levelNode->totalVolume += qty;
 			m_TotalBidsVolume += qty;
 
-			std::cout << "[ LIMIT ORDER {" + limitOrder.getClOrdID() + "} ]\tADDED\t" << limitOrder.getSymbol() << " BID " << qty << " @ " << price << std::endl;
+			std::cout << "\t[ORDER {" + limitOrder.getClOrdID() + "}]\tADDED\t" << limitOrder.getSymbol() << " LIMIT " << "BID " << qty << " @ " << price << std::endl;
 
 			break;
 		}
@@ -43,7 +43,7 @@ namespace Mad {
 			levelNode->totalVolume += qty;
 			m_TotalAsksVolume+= qty;
 
-			std::cout << "\t[ LIMIT ORDER {" + limitOrder.getClOrdID() + "} ]\tADDED\t" << limitOrder.getSymbol() << " ASK " << qty << " @ " << price << std::endl;
+			std::cout << "\t[ORDER {" + limitOrder.getClOrdID() + "} ]\tADDED\t" << limitOrder.getSymbol() << " LIMIT " << " ASK " << qty << " @ " << price << std::endl;
 
 			break;
 		}
